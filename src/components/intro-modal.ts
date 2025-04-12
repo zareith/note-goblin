@@ -10,7 +10,7 @@ export default function IntroModal(p: {
         h(Modal.Body, {},
             h("div", { ...S.props(s.primaryLogoContainer) },
                 h("img", {
-                    src: "logo.svg",
+                    src: "/logo.svg",
                     width: 100,
                     ...S.props(s.logo),
                 }),
