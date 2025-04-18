@@ -9,8 +9,9 @@ import "./editor-group.css"
 import { FiX } from "react-icons/fi";
 import Preview from "./preview";
 import { useAtomValue, useSetAtom } from "jotai";
-import { Suspense, useEffect } from "preact/compat";
+import { Suspense, useEffect, useRef, useState } from "preact/compat";
 import { useLocation, useRoute } from "preact-iso";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
 export default function EditorGroup() {
     const route = useRoute();
@@ -74,29 +75,72 @@ function TabStrip() {
     const curFile = useAtomValue(fileAtoms.currentFile$)
     const isSoloScratchBuffer = openFiles?.length === 1 && !curFile?.blob
     const isClosable = !isSoloScratchBuffer
+    const scrollContainerRef = useRef<HTMLDivElement>(null)
+    const [hasScrollerBtns, setScrollerBtns] = useState(false);
 
-    return h(Tabs, {
-        activeKey: curFile?.path,
-        appearance: "pills",
-        onSelect: (fileId) => fileActions.switchFile("" + fileId)
+    useEffect(() => {
+        const container = scrollContainerRef.current
+        if (!container) return
+        if (container.scrollWidth > container.clientWidth) {
+            if (!hasScrollerBtns) setScrollerBtns(true);
+        } else if (hasScrollerBtns)
+            setScrollerBtns(false);
+    })
+
+    return h(FlexRowC, {
+        className: "ngoblin-ed-group-tab-strip-container"
     },
-        openFiles.map((f, idx) => (
-            h(Tabs.Tab, {
-                eventKey: f.path,
-                title: h(FlexRowC, {
-                    style: {
-                        gap: 5
-                    }
-                },
-                    f.name,
-
-                    isClosable && h(IconButton, {
-                        onClick: () => {
-                            fileActions.closeFile(f.path)
+        hasScrollerBtns && h(IconButton, {
+            size: "sm",
+            appearance: "link",
+            icon: h_(FiChevronLeft),
+            onClick: () => {
+                const container = scrollContainerRef.current
+                if (!container) return;
+                container.scrollBy({
+                    left: -100,
+                    behavior: "smooth",
+                });
+            }
+        }),
+        h("div", {
+            className: "ngoblin-ed-group-tab-strip",
+            ref: scrollContainerRef,
+        },
+            h(Tabs, {
+                activeKey: curFile?.path,
+                appearance: "pills",
+                onSelect: (fileId) => fileActions.switchFile("" + fileId)
+            },
+                openFiles.map((f, idx) => (
+                    h(Tabs.Tab, {
+                        eventKey: f.path,
+                        title: h(FlexRowC, {
+                            style: {
+                                gap: 5
+                            }
                         },
-                        icon: h_(FiX),
-                        size: "xs",
-                        appearance: "subtle"
-                    }))
-            }))))
+                            f.name,
+                            isClosable && h(IconButton, {
+                                onClick: () => {
+                                    fileActions.closeFile(f.path)
+                                },
+                                icon: h_(FiX),
+                                size: "xs",
+                                appearance: "subtle"
+                            }))
+                    }))))),
+        hasScrollerBtns && h(IconButton, {
+            size: "sm",
+            appearance: "link",
+            icon: h_(FiChevronRight),
+            onClick: () => {
+                const container = scrollContainerRef.current
+                if (!container) return;
+                container.scrollBy({
+                    left: 100,
+                    behavior: "smooth",
+                });
+            }
+        }))
 }
