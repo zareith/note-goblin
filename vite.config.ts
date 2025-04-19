@@ -2,10 +2,16 @@ import preact from "@preact/preset-vite";
 import { defineConfig } from "vite";
 import { stylex } from "vite-plugin-stylex-dev";
 import { VitePWA } from 'vite-plugin-pwa'
+import path from "node:path"
 
 // https://vitejs.dev/config/
 export default defineConfig({
     base: process.env.BASE_PATH ?? "/",
+    resolve: {
+        alias: {
+            '@codemirror/state': path.resolve("./node_modules/@codemirror/state")
+        }
+    },
     plugins: [
         preact(),
         stylex(),
