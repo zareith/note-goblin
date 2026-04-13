@@ -5,12 +5,15 @@ import {
 } from 'react-icons/md';
 import { Icon } from '@rsuite/icons';
 import { Button } from 'rsuite';
-import { layout$ } from '../state/ui';
+import { layout$, SidebarType } from '../state/ui';
 import { toggleN } from '../utils/bool';
 import WorkspacePanel from './workspace-panel';
 import "./side-nav.css"
 import { FlexRowS } from './flex';
 import { useAtom } from "jotai";
+import { Component, VNode } from "preact";
+import SettingsPanel from "./settings-panel";
+import SearchPanel from "./search-panel";
 
 export default function SideNav() {
     const [layout, setLayout] = useAtom(layout$)
@@ -47,6 +50,12 @@ export default function SideNav() {
         layout.openSidebar && h("div", {
             className: "ngoblin-side-nav-expanded"
         },
-            h_(WorkspacePanel))
+            h_(panels[layout.openSidebar])),
     );
+}
+
+const panels: Record<SidebarType, () => VNode<any>> = {
+  WORKSPACE: WorkspacePanel,
+  SETTINGS: SettingsPanel,
+  SEARCH: SearchPanel
 }
